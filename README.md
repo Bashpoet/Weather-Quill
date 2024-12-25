@@ -1,8 +1,5 @@
 # Weather's Quill Meteorological Dramaturgy: Real-Time Data Meets Theatrical AI Prose
 
-**Project Title**  
-*Meteorological Dramaturgy: Real-Time Data Meets Theatrical AI Prose*
-
 ---
 
 # Meteorological Dramaturgy
