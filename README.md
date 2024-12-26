@@ -2,9 +2,9 @@
 
 ---
 
-# Meteorological Dramaturgy
+# Weather-Quill
 
-Ever wondered what it would be like if your local forecast were spun into a nightly Shakespearean soliloquy or an operatic ode? **Meteorological Dramaturgy** blends real-time weather data from the OpenWeatherMap API with an LLM’s capacity to weave lyrical, dramatic narratives. Each time the script runs, the atmospheric data you receive—humidity, temperature, wind speed, pressure—gets cast as living, breathing characters on a cosmic stage, resulting in a one-of-a-kind textual performance tailored to the exact weather of the moment.
+Ever wondered what it would be like if your local forecast were spun into a nightly Shakespearean soliloquy or an operatic ode? **Weather-Quill** blends real-time weather data from the OpenWeatherMap API with an LLM’s capacity to weave lyrical, dramatic narratives. Each time the script runs, the atmospheric data you receive—humidity, temperature, wind speed, pressure—gets cast as living, breathing characters on a cosmic stage, resulting in a one-of-a-kind textual performance tailored to the exact weather of the moment.
 
 ## Table of Contents
 1. [Overview](#overview)  
@@ -20,7 +20,7 @@ Ever wondered what it would be like if your local forecast were spun into a nigh
 
 ## Overview
 
-**Meteorological Dramaturgy** fetches current weather data—like temperature, wind, humidity—and hands it off to a Large Language Model (LLM) via a system prompt. The LLM, instructed to personify and dramatize the atmospheric variables, composes a brand-new piece of prose every time you run the script.
+**Weather-Quill** fetches current weather data—like temperature, wind, humidity—and hands it off to a Large Language Model (LLM) via a system prompt. The LLM, instructed to personify and dramatize the atmospheric variables, composes a brand-new piece of prose every time you run the script.
 
 You can think of it as:
 
