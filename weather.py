@@ -3,19 +3,11 @@ import requests
 import openai
 import datetime
 
-# If you're using environment variables, ensure you install python-dotenv and uncomment these lines:
-# from dotenv import load_dotenv
-# load_dotenv()
-
 # --------------------------- Configuration Section --------------------------- #
 
-# Replace these placeholders with either:
-# 1) Actual keys (not recommended for production), or
-# 2) Environment variables via os.getenv("VARIABLE_NAME").
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "YOUR_OPENWEATHERMAP_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY")
 
-# SYSTEM_PROMPT sets the “high-level direction” for how the LLM responds.
 SYSTEM_PROMPT = """
 You are a dramaturge of the atmosphere—a meteorological muse who weaves weather data into an immersive,
 theatrical narrative. You adopt a playful, eloquent tone. Clouds, winds, humidity, and temperature are characters
@@ -24,84 +16,84 @@ acts as a gentle prompter or cunning director. Keep your commentary scientifical
 lively, lyrical prose. Reference the data you receive as if unveiling a hidden script that reveals the drama overhead.
 """
 
+# --------------------------- Utility Functions ------------------------------- #
+
+def deg_to_compass(deg):
+    """Convert wind direction in degrees to a compass direction."""
+    if deg is None:
+        return "N/A"
+    directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                  "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+    index = round(deg / 22.5) % 16
+    return directions[index]
+
+def convert_to_local_time(unix_time, offset):
+    """Convert UTC Unix timestamp to local time string using timezone offset."""
+    if unix_time is None:
+        return "N/A"
+    utc_time = datetime.datetime.utcfromtimestamp(unix_time)
+    local_time = utc_time + datetime.timedelta(seconds=offset)
+    return local_time.strftime('%Y-%m-%d %H:%M:%S')
 
 # --------------------------- Weather Data Retrieval -------------------------- #
 
 def fetch_weather_data(city_name: str, api_key: str) -> dict:
     """
-    Makes an HTTP GET request to OpenWeatherMap, retrieving current weather data
-    for a specified city. Returns the raw JSON data as a dictionary, or None if
-    an error occurs.
-
-    :param city_name: Name of the city (e.g., "Berlin" or "Tokyo").
-    :param api_key: Your OpenWeatherMap API key.
-    :return: Dictionary containing the raw JSON response, or None on failure.
+    Fetch current weather data from OpenWeatherMap for a specified city.
+    Returns raw JSON data or None on failure with specific error messages.
     """
     url = "http://api.openweathermap.org/data/2.5/weather"
-    params = {
-        "q": city_name,
-        "appid": api_key,
-        "units": "metric"
-    }
+    params = {"q": city_name, "appid": api_key, "units": "metric"}
     try:
         response = requests.get(url, params=params)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error: Unable to retrieve data from OpenWeatherMap. Details: {e}")
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 404:
+            print("City not found. Please check the spelling or try another city.")
+        elif response.status_code == 401:
+            print("Invalid API key. Please check your OpenWeatherMap API key.")
+        else:
+            print(f"Error {response.status_code}: {response.text}")
         return None
-
+    except requests.exceptions.RequestException as e:
+        print(f"Network error: {e}")
+        return None
 
 # --------------------------- Data Processing --------------------------------- #
 
 def process_weather_data(raw_data: dict) -> dict:
     """
-    Extracts key fields from the raw JSON data and organizes them
-    into a concise dictionary for use by the LLM prompt.
-
-    :param raw_data: Dictionary containing raw JSON weather data from OpenWeatherMap.
-    :return: Dictionary of processed weather information, or None if parsing fails.
+    Process raw JSON weather data into a structured dictionary, adjusting times to local time zone.
     """
     if not raw_data:
         return None
 
-    # Basic attributes
     city_name = raw_data.get("name", "Unknown City")
-
     weather_array = raw_data.get("weather", [{}])
     main_weather = weather_array[0].get("description", "No description")
-
     main_data = raw_data.get("main", {})
     temp = main_data.get("temp", 0.0)
     feels_like = main_data.get("feels_like", 0.0)
     humidity = main_data.get("humidity", 0)
     pressure = main_data.get("pressure", 0)
-
     wind_data = raw_data.get("wind", {})
-    wind_speed = wind_data.get("speed", 0.0)  # meters/sec
+    wind_speed = wind_data.get("speed", 0.0)
     wind_deg = wind_data.get("deg", 0)
-
     cloud_data = raw_data.get("clouds", {})
     cloudiness = cloud_data.get("all", 0)
-
-    # Optional extras
     sys_data = raw_data.get("sys", {})
     sunrise_unix = sys_data.get("sunrise")
     sunset_unix = sys_data.get("sunset")
+    data_time_unix = raw_data.get("dt")
+    timezone_offset = raw_data.get("timezone", 0)  # Seconds from UTC
 
-    # Convert sunrise/sunset to human-readable times if present
-    sunrise_time = (
-        datetime.datetime.fromtimestamp(sunrise_unix).strftime('%H:%M:%S')
-        if sunrise_unix
-        else "N/A"
-    )
-    sunset_time = (
-        datetime.datetime.fromtimestamp(sunset_unix).strftime('%H:%M:%S')
-        if sunset_unix
-        else "N/A"
-    )
+    # Convert times to local time
+    data_time = convert_to_local_time(data_time_unix, timezone_offset)
+    sunrise_time = convert_to_local_time(sunrise_unix, timezone_offset)
+    sunset_time = convert_to_local_time(sunset_unix, timezone_offset)
+    wind_direction = deg_to_compass(wind_deg)
 
-    processed_data = {
+    return {
         "city_name": city_name,
         "description": main_weather,
         "temperature_c": temp,
@@ -109,37 +101,30 @@ def process_weather_data(raw_data: dict) -> dict:
         "humidity_pct": humidity,
         "pressure_hpa": pressure,
         "wind_speed_ms": wind_speed,
+        "wind_direction": wind_direction,
         "wind_direction_deg": wind_deg,
         "cloudiness_pct": cloudiness,
         "sunrise": sunrise_time,
         "sunset": sunset_time,
+        "data_time": data_time
     }
-
-    return processed_data
-
 
 # --------------------------- Prompt Building --------------------------------- #
 
 def build_user_prompt(weather_data: dict) -> str:
-    """
-    Constructs a user-level prompt combining the processed weather information.
-    The LLM can then use these details to create a dramatic, poetic interpretation.
-
-    :param weather_data: Dictionary of processed weather info.
-    :return: String containing a detailed user prompt.
-    """
+    """Build a contextual prompt for the LLM with local time and compass wind direction."""
     if not weather_data:
         return "No valid weather data found. Please provide correct data."
 
     user_prompt = (
-        f"City: {weather_data['city_name']}\n"
+        f"As of {weather_data['data_time']}, in the city of {weather_data['city_name']},\n"
         f"Weather Description: {weather_data['description']}\n"
         f"Temperature: {weather_data['temperature_c']} °C\n"
         f"Feels Like: {weather_data['feels_like_c']} °C\n"
         f"Humidity: {weather_data['humidity_pct']}%\n"
         f"Pressure: {weather_data['pressure_hpa']} hPa\n"
         f"Wind Speed: {weather_data['wind_speed_ms']} m/s\n"
-        f"Wind Direction: {weather_data['wind_direction_deg']}°\n"
+        f"Wind Direction: {weather_data['wind_direction']}\n"
         f"Cloudiness: {weather_data['cloudiness_pct']}%\n"
         f"Sunrise: {weather_data['sunrise']}\n"
         f"Sunset: {weather_data['sunset']}\n\n"
@@ -148,23 +133,13 @@ def build_user_prompt(weather_data: dict) -> str:
         "imagine them as characters on a grand cosmic stage. Keep it elegant, "
         "imaginative, yet grounded in the facts above."
     )
-
     return user_prompt
-
 
 # --------------------------- LLM Interaction --------------------------------- #
 
 def call_llm(system_prompt: str, user_prompt: str) -> str:
-    """
-    Sends the system prompt and user prompt to the OpenAI ChatCompletion endpoint
-    (GPT-3.5, GPT-4, etc.). Returns the AI’s response as a string.
-
-    :param system_prompt: Overall directive setting the style or tone.
-    :param user_prompt: Data-driven prompt with specific weather details.
-    :return: AI-generated text describing the weather in a poetic or dramatic form.
-    """
+    """Send prompts to OpenAI API and return the poetic response."""
     openai.api_key = OPENAI_API_KEY
-
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
@@ -172,7 +147,7 @@ def call_llm(system_prompt: str, user_prompt: str) -> str:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            temperature=0.9,  # Increase for more creativity, decrease for more factual text
+            temperature=0.9,
             max_tokens=600,
             top_p=1,
             frequency_penalty=0,
@@ -182,44 +157,27 @@ def call_llm(system_prompt: str, user_prompt: str) -> str:
     except Exception as e:
         return f"LLM request failed. Error: {str(e)}"
 
-
 # --------------------------- Main Orchestration ------------------------------ #
 
 def main():
-    """
-    Orchestrates the entire Weather-Quill script:
-    1. Prompts the user for a city name.
-    2. Fetches raw weather data from OpenWeatherMap.
-    3. Processes that data into a structured format.
-    4. Builds an LLM-ready user prompt.
-    5. Calls the LLM to get a theatrical weather narrative.
-    6. Prints out the result.
-    """
+    """Orchestrate the Weather-Quill script with improved functionality."""
     city = input("Enter a city name for the grand meteorological opera: ")
-
-    # Step 1: Fetch raw data
     raw_data = fetch_weather_data(city, OPENWEATHER_API_KEY)
     if not raw_data:
         print("No data returned from the API. Exiting...")
         return
 
-    # Step 2: Process the weather data
     processed = process_weather_data(raw_data)
     if not processed:
         print("Weather data was invalid. Exiting...")
         return
 
-    # Step 3: Build the user prompt
     user_prompt = build_user_prompt(processed)
-
-    # Step 4: Call the LLM for a theatrical interpretation
     theatrical_report = call_llm(SYSTEM_PROMPT, user_prompt)
 
-    # Step 5: Print the output
     print("\n====== Theatrical Weather Report ======\n")
     print(theatrical_report)
     print("\n====== End of Report ======\n")
-
 
 if __name__ == "__main__":
     main()
