@@ -1,3 +1,23 @@
-requests>=2.31.0
-openai>=0.27.2
-python-dotenv>=1.0.0
+# Core dependencies
+requests>=2.28.0
+openai>=0.27.0
+python-dotenv>=0.21.0
+
+# Web interface
+Flask>=2.2.0
+Werkzeug>=2.2.0
+Jinja2>=3.1.0
+
+# Geolocation services
+geopy>=2.3.0
+
+# Text-to-speech
+gTTS>=2.3.0
+
+# Data processing
+pytz>=2022.1
+
+# Optional enhancements
+matplotlib>=3.6.0  # For potential data visualization
+pandas>=1.5.0      # For more advanced data manipulation
+pillow>=9.3.0      # For image processing if adding visuals
