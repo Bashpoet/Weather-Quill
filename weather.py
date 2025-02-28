@@ -7,6 +7,7 @@ import logging
 import requests
 import openai
 import datetime
+import traceback
 import tempfile
 from typing import Dict, Any, Optional, Union, List, Tuple
 from dataclasses import dataclass, asdict
