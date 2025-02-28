@@ -1,213 +1,250 @@
-# Weather-Quill  
-**Meteorological Dramaturgy: Real-Time Data Meets Theatrical AI Prose**  
+# Weather-Quill
 
-Ever wondered what it would be like if your local forecast were spun into a nightly Shakespearean soliloquy or an operatic ode? **Weather-Quill** blends real-time weather data from the OpenWeatherMap API with an LLM’s capacity to weave lyrical, dramatic narratives. Each time the script runs, the atmospheric data you receive—humidity, temperature, wind speed, pressure—gets cast as living, breathing characters on a cosmic stage, resulting in a one-of-a-kind textual performance tailored to the exact weather of the moment.
+## Transforming Weather Data into Poetic Narratives
 
----
+Weather-Quill is a Python application that fetches weather data and transforms it into creative, theatrical narratives using AI language models. It turns mundane weather reports into engaging stories by personifying meteorological elements - clouds become characters, winds act as directors, and temperature shifts transform into plot twists.
 
-## Table of Contents  
-1. [Overview](#overview)  
-2. [Features](#features)  
-3. [Prerequisites](#prerequisites)  
-4. [Installation](#installation)  
-5. [Usage](#usage)  
-6. [Code Examples](#code-examples)  
-7. [Customization](#customization)  
-8. [Possible Future Developments](#possible-future-developments)  
-9. [License](#license)  
+## 🌟 Features
 
----
+- **Rich Narrative Styles**: Generate weather reports in multiple literary styles:
+  - Dramatic theatrical narratives
+  - Shakespearean sonnets and soliloquies
+  - Hardboiled noir detective monologues
+  - Scientific poetic explanations
+  - Melodramatic weather reporting
+  - Grim gothic descriptions
+  - Child-friendly storytelling
+  - Historical period-appropriate writing
 
-## Overview
-**Weather-Quill** fetches current weather data—like temperature, wind, humidity—and hands it off to a Large Language Model (LLM) via a system prompt. The LLM, instructed to personify and dramatize the atmospheric variables, composes a brand-new piece of prose every time you run the script.
+- **Comprehensive Weather Data**:
+  - Current conditions from multiple providers
+  - Historical weather data from specific dates
+  - Multi-day weather forecasts
+  - Comparison between multiple locations
 
-You can think of it as:
-1. **Data Collection:** Fresh meteorological data gets pulled from [OpenWeatherMap](https://openweathermap.org).  
-2. **Theatrical Writing:** An AI (GPT-based or otherwise) generates short, imaginative forecasts teeming with metaphors—humidity might be a “sultry contralto,” while pressure gradients lurk like “conspirators.”  
-3. **Continuous Novelty:** Each run produces text unique to that moment’s weather conditions, so you’re always reading a new “scene” of the sky’s drama.
+- **Multiple Weather Providers**:
+  - OpenWeatherMap
+  - WeatherAPI.com
+  - Visual Crossing
 
----
+- **Enhanced Geographic Context**:
+  - Coastal proximity detection
+  - Nearby water bodies identification
+  - Regional and country context
+  - Terrain information
 
-## Features
-- **Real-Time Weather**: Retrieves live conditions via [OpenWeatherMap](https://openweathermap.org).  
-- **AI-Generated Prose**: Feeds data to an LLM, returning poetic, comedic, or downright operatic narratives.  
-- **Beginner-Friendly**: Written in Python, with docstrings and comments to clarify how data flows from the API to the LLM.  
-- **Easily Extensible**: Swap in different data sources or add more meteorological parameters (e.g., sunrise, sunset, UV index) for richer storytelling.
+- **Multiple Output Formats**:
+  - Text reports (console output)
+  - Saved report files
+  - Audio narratives (text-to-speech)
+  - Web interface with interactive display
 
----
+## 📋 Prerequisites
 
-## Prerequisites
-1. **Python 3.7+**  
-   - Make sure you’ve installed Python version 3.7 or above.
-2. **Python Libraries**  
-   - `requests` for HTTP requests  
-   - `openai` (or a similar LLM library) for AI interactions  
-3. **OpenWeatherMap API Key**  
-   - Sign up for a free API key at [OpenWeatherMap](https://openweathermap.org/)  
-4. **OpenAI API Key** (or other LLM provider credentials)  
-   - Sign up at [OpenAI](https://openai.com/) or with another provider, then grab your API key.  
+- Python 3.7+
+- API keys for at least one weather provider:
+  - OpenWeatherMap (required): [Get API Key](https://openweathermap.org/api)
+  - WeatherAPI.com (optional): [Get API Key](https://www.weatherapi.com/)
+  - Visual Crossing (optional): [Get API Key](https://www.visualcrossing.com/)
+- OpenAI API key: [Get API Key](https://platform.openai.com/)
 
----
+## 🔧 Installation
 
-## Installation
-
-1. **Clone the Repository**  
+1. Clone the repository:
    ```bash
-   git clone https://github.com/<your-username>/weather-quill.git
+   git clone https://github.com/yourusername/weather-quill.git
    cd weather-quill
    ```
 
-2. **Install Dependencies**  
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install required packages:
    ```bash
    pip install -r requirements.txt
    ```
-   If you haven’t generated a `requirements.txt` yet, you can simply run:
+
+4. Set up your API keys as environment variables:
    ```bash
-   pip install requests openai
+   # Linux/macOS
+   export OPENWEATHER_API_KEY="your_openweathermap_key"
+   export OPENAI_API_KEY="your_openai_key"
+   export WEATHERAPI_KEY="your_weatherapi_key"  # Optional
+   export VISUALCROSSING_KEY="your_visualcrossing_key"  # Optional
+   
+   # Windows
+   set OPENWEATHER_API_KEY=your_openweathermap_key
+   set OPENAI_API_KEY=your_openai_key
+   set WEATHERAPI_KEY=your_weatherapi_key  # Optional
+   set VISUALCROSSING_KEY=your_visualcrossing_key  # Optional
    ```
-   and then:
-   ```bash
-   pip freeze > requirements.txt
-   ```
 
-3. **Set Up Environment Variables** (Recommended)  
-   - Create a `.env` file at the root of the project with:
-     ```
-     OPENWEATHER_API_KEY=your_openweathermap_key
-     OPENAI_API_KEY=your_openai_key
-     ```
-   - If you prefer, you can manually replace placeholders in the script with your keys, but storing them in `.env` is more secure and convenient.
+## 📚 Usage
 
-4. **Confirm Your Environment**  
-   - Run `python --version` to check you’re on Python 3.7+.
-   - Create a virtual environment (optional but recommended):
-     ```bash
-     python -m venv venv
-     source venv/bin/activate  # On Linux/Mac
-     .\venv\Scripts\activate   # On Windows
-     ```
+### Command Line Interface
 
----
+Weather-Quill has five main modes, each accessible via subcommands:
 
-## Usage
+#### 1. Current Weather Report
 
-1. **Run the Main Script**  
-   From the project directory, type:
-   ```bash
-   python theatrical_weather.py
-   ```
-   (Or whatever you’ve named your script—e.g., `weather_quill.py`.)
-
-2. **Enter Your City**  
-   ```bash
-   Enter a city name for the grand meteorological opera: Berlin
-   ```
-3. **Enjoy the Show**  
-   The script fetches fresh weather data and the LLM composes a new “act,” weaving your local conditions into a theatrical monologue. You might read about a “gentle but cunning orchestrator” of a breeze, or a “velvet drape of humidity” at 82%.
-
----
-
-## Code Examples
-
-Below is a simplified snippet illustrating the core flow. For a full version, see the main file in the repo:
-
-```python
-import os
-import requests
-import openai
-
-# Suppose your environment variables are in .env, loaded by dotenv
-# from dotenv import load_dotenv
-# load_dotenv()
-
-OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-SYSTEM_PROMPT = """
-You are a dramaturge of the atmosphere, weaving weather data into lyrical, theatrical narratives.
-Keep your commentary scientifically grounded but delivered in lively, poetically-charged prose.
-"""
-
-def fetch_weather(city):
-    url = "http://api.openweathermap.org/data/2.5/weather"
-    params = {
-        "q": city,
-        "appid": OPENWEATHER_API_KEY,
-        "units": "metric"
-    }
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    return response.json()
-
-def build_prompt(weather_data):
-    city_name = weather_data["name"]
-    description = weather_data["weather"][0]["description"]
-    temp = weather_data["main"]["temp"]
-    humidity = weather_data["main"]["humidity"]
-
-    return (
-        f"City: {city_name}\n"
-        f"Description: {description}\n"
-        f"Temperature: {temp}°C\n"
-        f"Humidity: {humidity}%\n"
-        "Dramatize these details in a short theatrical commentary."
-    )
-
-def call_llm(system_prompt, user_prompt):
-    openai.api_key = OPENAI_API_KEY
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ]
-    )
-    return response["choices"][0]["message"]["content"]
-
-def main():
-    city = input("Enter a city name for the grand meteorological opera: ")
-    weather_data = fetch_weather(city)
-    user_prompt = build_prompt(weather_data)
-    print("\n--- Theatrical Weather Report ---\n")
-    print(call_llm(SYSTEM_PROMPT, user_prompt))
-    print("\n-------------------------------\n")
-
-if __name__ == "__main__":
-    main()
+```bash
+python weather_quill.py current "London" --style dramatic --units metric
 ```
 
----
+#### 2. Historical Weather Report
 
-## Customization
+```bash
+python weather_quill.py historical "Paris" --date 2020-07-14 --style historical
+```
 
-1. **Prompt Engineering**  
-   - Open your script and customize the `SYSTEM_PROMPT` text to change the writing style. You might go for a comedic, philosophical, or even noir-inspired tone.
+#### 3. Weather Forecast
 
-2. **Extra Data Fields**  
-   - In your `fetch_weather` or `build_prompt` functions, extract additional parameters like wind speed, sunrise, or cloud coverage. Mention them in the prompt so the AI can include them in the narrative.
+```bash
+python weather_quill.py forecast "Tokyo" --days 5 --style shakespearean
+```
 
-3. **Temperature Control**  
-   - Inside `call_llm`, adjusting `temperature=0.7` (or higher/lower) influences creativity. A higher number typically results in more flamboyant prose; a lower one yields more factual, sober writing.
+#### 4. Location Comparison
 
-4. **Error Handling**  
-   - You can wrap your API calls and LLM requests in `try-except` blocks to manage timeouts or invalid city names gracefully.
+```bash
+python weather_quill.py comparison "New York" "London" "Sydney" --style noir
+```
 
----
+#### 5. Web Interface
 
-## Possible Future Developments
+```bash
+python weather_quill.py web --port 5000
+```
 
-- **Forecast Opera**: Retrieve multi-day forecasts to craft multi-act dramas—morning, afternoon, and night each get their own mini-scene.  
-- **User-Selectable Themes**: Let users pick whether the style should be Shakespearean, Sci-Fi, Film Noir, or any other flavor before retrieving data.  
-- **Analytics**: Track how the LLM references changes in weather data over time, potentially storing it for creative or scientific comparisons.  
-- **Web Interface**: Build a simple Flask or Streamlit app so visitors can input a location and receive spontaneously generated readings and theatrical flair.  
-- **Internationalization**: Offer multi-language support by adjusting the LLM prompt to produce commentary in different languages.
+### Common Options
 
----
+All report types support these options:
 
-## License
-This project is released under the [MIT License](LICENSE). You’re free to modify, distribute, or build upon it. Have fun turning raw meteorological data into ephemeral sky poetry!
+- `--units` / `-u`: Choose `metric` or `imperial` units
+- `--style` / `-s`: Select narrative style
+- `--provider` / `-p`: Select weather data provider
+- `--save`: Save the report to a file
+- `--audio` / `-a`: Generate an audio version
+- `--no-cache`: Disable caching of weather data
+- `--no-geo`: Disable geographic context enrichment
+- `--verbose` / `-v`: Enable detailed logging
 
----
+### Web Interface
 
-### Enjoy the Performance
-Whether you’re curious about AI’s creative range, eager to learn how to connect a public API to a Python script, or simply enchanted by the thought of a **tempestuous meteorological monologue** each morning, **Weather-Quill** offers a playful fusion of creativity and code. Give it a spin, experiment with custom styles, or expand the stage for an even grander atmospheric opera. Let the forecast be your muse!
+After starting the web server with `python weather_quill.py web`, navigate to `http://localhost:5000` in your browser. The web interface allows you to:
+
+1. Select report type (current, historical, forecast, comparison)
+2. Enter locations and parameters
+3. Choose narrative style
+4. Generate reports that can be:
+   - Viewed in the browser
+   - Downloaded as text files
+   - Converted to audio
+
+## 🎭 Sample Outputs
+
+### Dramatic Style
+
+```
+ACT I: THE MORNING UNVEILED
+
+The stage is set in London, where the atmospheric drama unfolds beneath a canvas of scattered clouds. 
+The temperature, a gentle 18°C, plays the protagonist, moving through the city with a flourish that 
+feels distinctly warmer at 20°C to those who encounter it. 
+
+Humidity, that ever-present supporting character, lingers at 72% – not quite the star of today's 
+performance, but certainly making its presence known in every breath, every scene.
+
+The wind enters stage left, a modest player at 3.5 m/s, carrying whispers from the Southwest. 
+It's neither the boisterous villain nor the silent extra, but rather the messenger, delivering 
+the script to cloudiness, which occupies just 40% of the grand theater overhead.
+
+[...continues]
+```
+
+### Shakespearean Style
+
+```
+What light through yonder atmosphere breaks?
+'Tis Paris, and fair Sol is the radiant dawn!
+At fifteen degrees, the air's embrace awakes,
+While summer's lease doth hold 'til day is gone.
+
+From southward winds at gentle pace do blow,
+Like whispers from a distant lover's sigh;
+The clouds, like scattered thoughts, do come and go,
+Claiming but half their kingdom in the sky.
+
+[...continues]
+```
+
+## 🔄 API Provider Details
+
+Weather-Quill supports three weather data providers, each with different capabilities and rate limits:
+
+### OpenWeatherMap
+- **Free Tier**: 1,000 calls/day, 60 calls/minute
+- **Data Available**: Current weather, 5-day forecast, historical (requires subscription)
+- **Required For**: Base functionality
+
+### WeatherAPI.com
+- **Free Tier**: 1,000,000 calls/month
+- **Data Available**: Current weather, 3-day forecast, 7-day history, air quality
+- **Benefits**: More detailed data including UV index and air quality
+
+### Visual Crossing
+- **Free Tier**: 1,000 records/day
+- **Data Available**: Current weather, 15-day forecast, historical (up to 50 years)
+- **Benefits**: Extensive historical data
+
+## 💾 Data Caching
+
+Weather-Quill implements a sophisticated caching system to minimize API calls:
+
+- Weather data is cached by default for 10 minutes
+- Historical data is cached for longer periods
+- Cache can be disabled with the `--no-cache` flag
+- Cache is stored in `~/.weather_quill_cache.json`
+
+## 🛠️ Troubleshooting
+
+### Missing API Keys
+```
+Error: OpenWeatherMap API key is not set. Please set the OPENWEATHER_API_KEY environment variable.
+```
+Solution: Ensure you've set the required API keys as environment variables.
+
+### City Not Found
+```
+Error: City not found. Please check the spelling or try another city.
+```
+Solution: Verify the city name or try adding the country code (e.g., "London,UK").
+
+### Rate Limit Exceeded
+```
+Error: API request failed: Rate limit exceeded
+```
+Solution: Wait until your API rate limit resets or switch to a different provider.
+
+## 📦 Dependencies
+
+- **requests**: HTTP requests to weather APIs
+- **openai**: Interaction with OpenAI's language models
+- **Flask**: Web interface (optional)
+- **geopy**: Geographic context enrichment (optional)
+- **gTTS**: Text-to-speech for audio reports (optional)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgements
+
+- Weather data provided by OpenWeatherMap, WeatherAPI.com, and Visual Crossing
+- Text generation powered by OpenAI's GPT models
