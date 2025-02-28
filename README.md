@@ -4,8 +4,6 @@
 
 Weather-Quill is a Python application that fetches weather data and transforms it into creative, theatrical narratives using AI language models. It turns mundane weather reports into engaging stories by personifying meteorological elements - clouds become characters, winds act as directors, and temperature shifts transform into plot twists.
 
-![Weather-Quill Banner](https://via.placeholder.com/800x200?text=Weather-Quill:+Meteorological+Storytelling)
-
 ## 🌟 Features
 
 - **AI-Powered Narrative Generation**:
